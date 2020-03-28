@@ -1,32 +1,14 @@
----
-title: "Visualizing Covid-19 Data"
-author: "Jiayun Dong"
-date: "3/27/2020"
-output: 
-  md_document:
-    variant: markdown_github
----
+Data Sources
+------------
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+In this project, we use the data from [The COVID Tracking
+Project](https://covidtracking.com) and [Johns Hopkins
+dataset](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series).
+We also use US states population data (uploaded in Github) in order to
+understand the spread and testing of the virus from the per capita
+perspective.
 
-library(jsonlite)
-library(dplyr)
-library(ggplot2)
-library(viridis)
-library(directlabels)
-library(tidyr)
-
-setwd("/Users/jiayun/Documents/GitHub/Covid19-viz")
-remove(list = ls())
-```
-
-
-## Data Sources
-
-In this project, we use the data from [The COVID Tracking Project](https://covidtracking.com) and [Johns Hopkins dataset](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series). We also use US states population data (uploaded in Github) in order to understand the spread and testing of the virus from the per capita perspective.
-
-```{r}
+``` r
 dat = as.data.frame(fromJSON("https://covidtracking.com/api/states/daily")) %>%  
   select(state, date, positive, negative, pending, death, total) %>%
   mutate(date = as.Date(as.character(date), format = "%Y%m%d"),
@@ -39,10 +21,10 @@ dat_pop = read.csv(file="StatePopulations.csv", head = TRUE, sep =",") %>%
   select(state = state_abbrev, population = X2018.Population)
 ```
 
+Overview of The Spread of Covid-19 in the US
+--------------------------------------------
 
-## Overview of The Spread of Covid-19 in the US
-
-```{r}
+``` r
 overview = dat %>%
     group_by(date) %>%
     summarise_if(is.numeric, sum, na.rm=TRUE) %>% # aggregate numeriac variables at national level
@@ -53,7 +35,7 @@ overview = dat %>%
            testResultsDailyIncrease = replace_na(testResultsDailyIncrease, 0))
 ```
 
-```{r}
+``` r
   # time series of positive cases 
   ggplot(data = overview, aes(x = date)) +
     geom_line(aes(y = positive, color = "Positive Cases")) +
@@ -68,7 +50,9 @@ overview = dat %>%
     ggtitle("Overview of Covid-19 in the US: Positive Cases")
 ```
 
-```{r}
+![](Visualizing-Covid-19-Data_files/figure-markdown_github/unnamed-chunk-3-1.png)
+
+``` r
   # time series of testing
   ggplot(data = overview, aes(x = date)) +
     geom_line(aes(y = totalTestResults, color = "Total Test Results")) +
@@ -83,4 +67,4 @@ overview = dat %>%
     ggtitle("Overview of Covid-19 in the US: Tests")
 ```
 
-
+![](Visualizing-Covid-19-Data_files/figure-markdown_github/unnamed-chunk-4-1.png)
