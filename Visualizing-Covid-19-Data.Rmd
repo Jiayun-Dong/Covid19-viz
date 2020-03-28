@@ -26,7 +26,7 @@ remove(list = ls())
 
 In this project, we use the data from [The COVID Tracking Project](https://covidtracking.com) and [Johns Hopkins dataset](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series). We also use US states population data (uploaded in Github) in order to understand the spread and testing of the virus from the per capita perspective.
 
-```{r}
+```{r, echo=FALSE}
 dat = as.data.frame(fromJSON("https://covidtracking.com/api/states/daily")) %>%  
   select(state, date, positive, negative, pending, death, total) %>%
   mutate(date = as.Date(as.character(date), format = "%Y%m%d"),
@@ -42,7 +42,7 @@ dat_pop = read.csv(file="StatePopulations.csv", head = TRUE, sep =",") %>%
 
 ## Overview of The Spread of Covid-19 in the US
 
-```{r}
+```{r, echo=FALSE}
 overview = dat %>%
     group_by(date) %>%
     summarise_if(is.numeric, sum, na.rm=TRUE) %>% # aggregate numeriac variables at national level
@@ -53,7 +53,7 @@ overview = dat %>%
            testResultsDailyIncrease = replace_na(testResultsDailyIncrease, 0))
 ```
 
-```{r}
+```{r, echo=FALSE}
   # time series of positive cases 
   ggplot(data = overview, aes(x = date)) +
     geom_line(aes(y = positive, color = "Positive Cases")) +
@@ -68,7 +68,7 @@ overview = dat %>%
     ggtitle("Overview of Covid-19 in the US: Positive Cases")
 ```
 
-```{r}
+```{r, echo=FALSE}
   # time series of testing
   ggplot(data = overview, aes(x = date)) +
     geom_line(aes(y = totalTestResults, color = "Total Test Results")) +
