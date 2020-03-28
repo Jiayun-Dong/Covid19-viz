@@ -1,2 +1,2 @@
 # Covid19-viz
-Visualizing Covid19 Data
+Please read Visualizing-Covid-19-Data.md
