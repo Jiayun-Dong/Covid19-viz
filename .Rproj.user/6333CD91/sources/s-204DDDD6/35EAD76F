@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1585359643587.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "35EAD76F",
+    "lastKnownWriteTime" : 1585363589,
+    "last_content_update" : 1585363589470,
+    "path" : "~/Desktop/covid-19/us-state.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "60,52",
+        "scrollLine" : "60"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
