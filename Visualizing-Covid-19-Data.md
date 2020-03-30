@@ -22,7 +22,7 @@ This report is written with the data as of March 29th, 2020.
 ## International Overview of the Spread of Covid-19
 
 Covid-19 began spreading in China around the beginning of 2020 and was
-spreaded globally rapidly with around 593,000 people infected with the
+spreaded globally rapidly with around 720,000 people infected with the
 disease.
 
 ![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
@@ -43,9 +43,9 @@ disease.
                               "number_of_countries" = colSums(dat_international_1000[,-1]))
 ```
 
-The disease has been spreading in 176 countries and regions. There are
-97 countries and regions with over 100 confirmed cases of Covid-19, and
-39 countries and regions with over 1,000 confirmed cases. These numbers
+The disease has been spreading in 177 countries and regions. There are
+105 countries and regions with over 100 confirmed cases of Covid-19, and
+43 countries and regions with over 1,000 confirmed cases. These numbers
 are growing
 rapidly.
 
@@ -57,16 +57,16 @@ hard-hitted places. \[1\]
     ## # A tibble: 10 x 2
     ##    `Country/Region` `Number of Confirmed Cases`
     ##    <chr>                                  <dbl>
-    ##  1 US                                    101657
-    ##  2 Italy                                  86498
-    ##  3 Hubei                                  67801
-    ##  4 Spain                                  65719
-    ##  5 Germany                                50871
-    ##  6 France                                 33402
-    ##  7 Iran                                   32332
-    ##  8 UK                                     14745
-    ##  9 China ex Hubei                         13544
-    ## 10 Switzerland                            12928
+    ##  1 US                                    140886
+    ##  2 Italy                                  97689
+    ##  3 Spain                                  80110
+    ##  4 Hubei                                  67801
+    ##  5 Germany                                62095
+    ##  6 France                                 40708
+    ##  7 Iran                                   38309
+    ##  8 UK                                     19780
+    ##  9 Switzerland                            14829
+    ## 10 China ex Hubei                         13643
 
 The following figure visualizes the trajectory of the spread of Covid-19
 in some of the countries and regions. In particular, for each country or
