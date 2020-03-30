@@ -3,6 +3,7 @@ title: "Visualizing Covid-19 Data"
 author: "Jiayun Dong"
 date: "3/27/2020"
 output: 
+  # pdf_document
   md_document:
     variant: gfm
 ---
@@ -357,7 +358,7 @@ ggplot(data = df_trajectory %>% filter(state %in% state_list), aes(x = day, y = 
 
 ### Positive Rate
 
-```{r echo=FALSE}
+```{r echo=FALSE, out.width = '120%'}
 df_test = df_current %>%
   mutate(pos_rate = positive / totalTestResults) %>%
   select(state, positive, totalTestResults, pos_rate, test_per_million_pop) %>%
@@ -379,7 +380,7 @@ title = paste0("COVID19 Testing in US - National Average: \nPositive Rate: ",
 state_list = c("NY", "WA", "CA", "NJ", "NC", "DC", "DE", "MI") # these are the states with labels
 
 ggplot(df_test, aes(x = totalTestResults, y = positive, size = test_per_million_pop, color = pos_rate, label = state)) +
-  geom_point(alpha = 0.5) +
+  geom_point(alpha = 0.4) +
   geom_text(cex = 2.5, color = "black") +
   geom_label(data = df_test %>% filter(state %in% state_list), 
              aes(label = paste0(round(pos_rate * 100), "%; ", test_per_million_pop)),

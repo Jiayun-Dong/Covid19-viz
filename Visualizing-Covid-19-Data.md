@@ -145,7 +145,7 @@ level.
 
 ### Positive Rate
 
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+<img src="Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-16-1.png" width="120%" />
 
 This figure is made based on the latest data. The dashed line represents
 the national average positive rate: about 17 people are infected by the
