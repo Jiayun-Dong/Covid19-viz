@@ -27,22 +27,6 @@ disease.
 
 ![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
-``` r
-# number of countries reaching 100
-    dat_international_100 = dat_international %>% 
-      spread(date, cases) %>%
-      mutate_if(is.numeric, function(x) as.numeric(x >= 100))
-    dat_international_100 = data.frame("date" = as.Date(colnames(dat_international_100)[-1]), 
-                              "number_of_countries" = colSums(dat_international_100[,-1]))
-
-# number of countries reaching 1000
-    dat_international_1000 = dat_international %>% 
-      spread(date, cases) %>%
-      mutate_if(is.numeric, function(x) as.numeric(x >= 1000))
-    dat_international_1000 = data.frame("date" = as.Date(colnames(dat_international_1000)[-1]), 
-                              "number_of_countries" = colSums(dat_international_1000[,-1]))
-```
-
 The disease has been spreading in 177 countries and regions. There are
 105 countries and regions with over 100 confirmed cases of Covid-19, and
 43 countries and regions with over 1,000 confirmed cases. These numbers
@@ -160,43 +144,6 @@ level.
 ![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ### Positive Rate
-
-``` r
-df_test = df_current %>%
-  mutate(pos_rate = positive / totalTestResults) %>%
-  select(state, positive, totalTestResults, pos_rate, test_per_million_pop) %>%
-  filter(positive >= 100)
-
-national_avg = df_current %>% 
-  ungroup() %>%
-  summarise(avg_positive_rate = sum(positive, na.rm = TRUE) / sum(totalTestResults, na.rm = TRUE),
-            avg_test_per_million_pop = round(sum(totalTestResults, na.rm = TRUE) / sum(population, na.rm = TRUE) * 1000000))
-
-slope = as.numeric(national_avg[1])
-l = function(x) log10(slope * x)
-
-title = paste0("COVID19 Testing in US - National Average: \nPositive Rate: ", 
-               round(national_avg[1] * 1000) / 10, 
-               "%; Tests per Million Population: ", 
-               round(national_avg[2]))
-
-state_list = c("NY", "WA", "CA", "NJ", "NC", "DC", "DE", "MI") # these are the states with labels
-
-ggplot(df_test, aes(x = totalTestResults, y = positive, size = test_per_million_pop, color = pos_rate, label = state)) +
-  geom_point(alpha = 0.5) +
-  geom_text(cex = 2.5, color = "black") +
-  geom_label(data = df_test %>% filter(state %in% state_list), 
-             aes(label = paste0(round(pos_rate * 100), "%; ", test_per_million_pop)),
-             cex = 2.5, color = "black", nudge_y = 0.08, alpha = 0.05) +
-  scale_color_gradient(low = "yellow2", high = "red3", name = "Positive Rate") +
-  scale_size(range = c(3, 16), breaks = c(250, 500, 1000, 2000, 4000, 8000), name = "Test Per Million Pop") +
-  stat_function(fun = l, linetype = "dashed", show.legend=FALSE) +
-  scale_y_log10(labels = scales::comma) +
-  scale_x_log10(labels = scales::comma) +
-  xlab("total tests (log scale)") + ylab("total cases (log scale)") +
-  ggtitle(title) +
-  theme_minimal() + theme(legend.position = "right")
-```
 
 ![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 

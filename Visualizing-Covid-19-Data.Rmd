@@ -31,7 +31,7 @@ Due to the different testing and social distancing policies across the globe and
 
 This report is written with the data as of March 29th, 2020.
 
-```{r, echo=FALSE}
+```{r echo=FALSE}
 # read JHU data
 df_raw = as.data.frame(read.csv(file="time_series_covid19_confirmed_global.csv", head = TRUE, sep =","))
 ```
@@ -40,7 +40,7 @@ df_raw = as.data.frame(read.csv(file="time_series_covid19_confirmed_global.csv",
 
 Covid-19 began spreading in China around the beginning of 2020 and was spreaded globally rapidly with around `r paste0(round(sum(df_raw[,ncol(df_raw)])/1000), ",000")` people infected with the disease.
 
-```{r, echo=FALSE}
+```{r echo=FALSE}
 # data cleaning
 
     # separate Hubei from mainland China and name change of some observations
@@ -82,7 +82,7 @@ Covid-19 began spreading in China around the beginning of 2020 and was spreaded 
 ```
 
 
-```{r}
+```{r echo=FALSE}
 # number of countries reaching 100
     dat_international_100 = dat_international %>% 
       spread(date, cases) %>%
@@ -357,7 +357,7 @@ ggplot(data = df_trajectory %>% filter(state %in% state_list), aes(x = day, y = 
 
 ### Positive Rate
 
-```{r}
+```{r echo=FALSE}
 df_test = df_current %>%
   mutate(pos_rate = positive / totalTestResults) %>%
   select(state, positive, totalTestResults, pos_rate, test_per_million_pop) %>%
