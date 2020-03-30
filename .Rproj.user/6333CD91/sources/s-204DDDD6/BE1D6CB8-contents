@@ -4,7 +4,7 @@ author: "Jiayun Dong"
 date: "3/27/2020"
 output: 
   md_document:
-    variant: markdown_github
+    variant: gfm
 ---
 
 ```{r setup, include=FALSE}
@@ -22,38 +22,198 @@ remove(list = ls())
 ```
 
 
-## Data Sources
 
-In this project, we use the data from [The COVID Tracking Project](https://covidtracking.com) and [Johns Hopkins dataset](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series). We also use US states population data (uploaded in Github) in order to understand the spread and testing of the virus from the per capita perspective.
+The goal of this report is to visualize the spread of Covid-19 and to understand the current situation in terms of where we are in the spreading trajectory. In the first part of this report, we overview the spread of Covid-19 across the globe. We then move onto the spread of the disease in the US with a closer scrutiny at the US data at state-level. 
+
+In this report, we use the data from [Johns Hopkins dataset](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series) (also uploaded in the current repository) for the global overview and the data from [The COVID Tracking Project](https://covidtracking.com) for understanding the development in the US. We also use US states population data (uploaded in this repo) in order to understand the spread and testing of the virus from the per capita perspective. 
+
+Due to the different testing and social distancing policies across the globe and across the states in the US, direct comparisons among the countries and states may be misleading. As such, the use of the figures in the report as means of prediction is discouraged. 
+
+This report is written with the data as of March 29th, 2020.
 
 ```{r, echo=FALSE}
+# read JHU data
+df_raw = as.data.frame(read.csv(file="time_series_covid19_confirmed_global.csv", head = TRUE, sep =","))
+```
+
+## International Overview of the Spread of Covid-19
+
+Covid-19 began spreading in China around the beginning of 2020 and was spreaded globally rapidly with around `r paste0(round(sum(df_raw[,ncol(df_raw)])/1000), ",000")` people infected with the disease.
+
+```{r, echo=FALSE}
+# data cleaning
+
+    # separate Hubei from mainland China and name change of some observations
+    dat_international = df_raw %>% 
+      mutate(Country.Region = if_else(Province.State == "Hubei", "Hubei", as.character(Country.Region)),
+             Country.Region = if_else(Province.State == "Hong Kong", "Hong Kong", as.character(Country.Region)),
+             Country.Region = if_else(Province.State == "Macau", "Macao", as.character(Country.Region)),
+             Country.Region = if_else(Country.Region == "Taiwan*", "Taiwan", as.character(Country.Region)),
+             Country.Region = if_else(Country.Region == "China", "China ex Hubei", as.character(Country.Region)),
+             Country.Region = if_else(Country.Region == "United Kingdom", "UK", as.character(Country.Region)),
+             Country.Region = if_else(Country.Region == "Korea, South", "South Korea", as.character(Country.Region))) %>%
+      filter(Country.Region != "Diamond Princess")
+    
+    # sum(is.na(dat_international))  # check for missing values
+    
+    # aggregate by country
+    dat_international = dat_international %>%
+      select(-c(Lat, Long, Province.State)) %>%
+      group_by(Country.Region) %>% 
+      summarise_all(funs(sum), na.rm = TRUE)
+    
+    # convert to tidy panel data
+    dat_international = gather(dat_international, "date", "cases", 2:ncol(dat_international))
+    
+    # date format
+    dat_international = dat_international %>% 
+      group_by(Country.Region) %>%
+      mutate(date_index = row_number(),
+             date = as.Date("2020-01-22") + date_index - 1) %>%
+      select(-date_index)
+    
+    # global overview
+    global_overview = dat_international %>% group_by(date) %>% summarise(total = sum(cases))
+    ggplot(global_overview, aes(x = date, y = total)) + 
+      geom_line() + 
+      scale_y_continuous(labels = scales::comma) +
+      ggtitle("Number of People Infected in the World") + 
+      theme_minimal() + theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+```
+
+
+```{r}
+# number of countries reaching 100
+    dat_international_100 = dat_international %>% 
+      spread(date, cases) %>%
+      mutate_if(is.numeric, function(x) as.numeric(x >= 100))
+    dat_international_100 = data.frame("date" = as.Date(colnames(dat_international_100)[-1]), 
+                              "number_of_countries" = colSums(dat_international_100[,-1]))
+
+# number of countries reaching 1000
+    dat_international_1000 = dat_international %>% 
+      spread(date, cases) %>%
+      mutate_if(is.numeric, function(x) as.numeric(x >= 1000))
+    dat_international_1000 = data.frame("date" = as.Date(colnames(dat_international_1000)[-1]), 
+                              "number_of_countries" = colSums(dat_international_1000[,-1]))
+```
+
+The disease has been spreading in `r length(unique(df_raw$Country.Region))` countries and regions. There are `r max(dat_international_100$number_of_countries)` countries and regions with over 100 confirmed cases of Covid-19, and `r max(dat_international_1000$number_of_countries)` countries and regions with over 1,000 confirmed cases. These numbers are growing rapidly.
+
+```{r echo=FALSE}
+# number of countries reaching 100
+    ggplot(dat_international_100, aes(x = date, y = number_of_countries)) +
+      geom_line() +
+      ggtitle("Number of Countries/Regions with Over 100 Infections") + 
+      theme_minimal() + theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+# number of countries reaching 1000
+    ggplot(dat_international_1000, aes(x = date, y = number_of_countries)) +
+      geom_line() +
+      ggtitle("Number of Countries/Regions with Over 1000 Infections") + 
+      theme_minimal() + theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+```
+
+Among these countries and regions, the following are the most hard-hitted places. ^[Notice that we treat Hubei Province and the rest of China separatedly in our report.]
+
+```{r echo=FALSE}
+# event study: reaching 100 cases is defined as an outbreak
+df_event = dat_international %>% 
+  group_by(Country.Region) %>%
+  mutate(not_over_100 = if_else(cases <= 99, 1, 0),
+         day_index = row_number(),
+         event_date = sum(not_over_100) + 1) %>%
+  filter(day_index >= event_date) %>% 
+  mutate(day = day_index - event_date) %>%
+  select(Country.Region, day, cases) %>%
+  arrange(Country.Region, day)
+
+# modify dates for Hubei: the data is available from 1/22. China's confirmed cases reached 100 at around 1/19
+df_event[df_event$Country.Region == "Hubei", 2] = df_event[df_event$Country.Region == "Hubei", 2] + 3
+
+# countries ranked by cases
+df_top = df_event %>% group_by(Country.Region) %>% summarise(maxcases = max(cases)) %>% arrange(desc(maxcases))
+names(df_top) = c("Country/Region", "Number of Confirmed Cases")
+head(df_top, 10)
+```
+
+The following figure visualizes the trajectory of the spread of Covid-19 in some of the countries and regions. In particular, for each country or region, we define the date when the number of confirmed cases of Covid-19 as the date of the "outbreak" and plot how the cumulative number of confirmed cases evolves after the outbreak.^[We set the outbreak of Hubei Provence as Jan 19. While data is not available from JHU before Jan 22, we have checked from other data source that the number of confirmed cases has reached 100 for Hubei on that day.]
+
+It seems that China (both Hubei Province and the rest of China) and South Korea has controlled the spread with very limited daily growth in the number of confirmed cases roughly a month after their outbreaks (day 30). The disease is growing at a somewhat controlable rate after the outbreak in some of the other Asian countries and regions, including Japan, Singapre Hong Kong and Taiwan. The rest of the countries in the figure have roughly close-to-linear trajectories, meaning that the disease is still growing at the exponential rate in these places ^[This is because the y-axis has log-scale in this figure.]
+
+```{r, echo=FALSE}
+# visualization parameter
+x_max = ceiling(max(df_event$day)/5) * 5
+y_max = max(df_event$cases) *1.05
+country_list = c("China ex Hubei", "Hubei", "South Korea", "Iran", "Italy", "US", "Japan", "Singapore", "UK", "Germany", "Hong Kong", "Spain", "France", "Canada", "Taiwan", "Australia")
+recent_date = as.Date(as.POSIXlt(Sys.time(), tz = "UTC")) - 1
+
+# adjust no update issue on 3/13
+df_event = df_event %>%
+  mutate(cases = if_else(Country.Region %in% country_list & cases - lag(cases) <= 2 & !is.na(lead(cases)) & !is.na(lag(cases)),
+                         (as.double(lag(cases)) * as.double(lead(cases)))^0.5, as.double(cases)))
+
+ggplot(data = df_event %>% filter(Country.Region %in% country_list), aes(x = day, y = cases)) +
+  geom_line(aes(color = Country.Region), size = 0.75) + 
+  # geom_vline(xintercept = 0, linetype = "dashed", color = "gray", size=0.55) +
+  scale_y_log10(breaks = c(100, 1000, 10000, 100000), 
+                minor_breaks = c(seq(from = 100, to = 1000, length.out = 6), seq(from = 1000, to = 10000, length.out = 6),
+                                 seq(from = 10000, to = 100000, length.out = 6)), 
+                labels = scales::comma,
+                limits = c(100, y_max)) +
+  scale_x_continuous(breaks = seq(from = 0, to = x_max, by = 5), limits = c(0, x_max)) +
+  xlab(paste0("Days since confirmed cases reached 100 \n (JHU Data, available from 2020-01-22, updated at ", recent_date, " 23:59 UTC)")) + 
+  ylab("Number of confirmed cases") +
+  geom_dl(aes(label = Country.Region), method = list(dl.trans(x = x - 0.1), "last.points", cex = 0.8)) +
+  theme_minimal() + theme(legend.position = "bottom")
+```
+
+We emphasize again that the number of confirmed cases in each country is affected by its testing policy and capacity, which are not uniform across the world. Moreover, countries with similar total number of confirmed cases may differ in the severity of the spread of Covid-19, due to the difference in total population.
+
+```{r echo=FALSE}
+remove(list = ls())
+```
+
+
+## The Spread of Covid-19 in the US
+
+```{r echo=FALSE}
+# read COVID-TRACKING data
 dat = as.data.frame(fromJSON("https://covidtracking.com/api/states/daily")) %>%  
   select(state, date, positive, negative, pending, death, total) %>%
   mutate(date = as.Date(as.character(date), format = "%Y%m%d"),
          death = if_else(is.na(death), 0, as.double(death)),
          pending = if_else(is.na(pending), 0, as.double(pending)),
-         negative = if_else(is.na(negative), 0, as.double(negative))) %>%
-  arrange(state, date)
+         negative = if_else(is.na(negative), 0, as.double(negative)),
+         totalTestResults = total - pending) %>%  # excluding tests with pending results
+  arrange(state, date) %>%
+  select(-total)
+
+# read US population data
 dat_pop = read.csv(file="StatePopulations.csv", head = TRUE, sep =",") %>% 
   mutate(state_abbrev = as.character(state_abbrev)) %>%
   select(state = state_abbrev, population = X2018.Population)
+
+# join datafreames
+dat = dat %>%
+  left_join(dat_pop, by = c("state" = "state")) %>%
+  mutate(positive_per_million_pop = round(positive / population * 1000000),
+         death_per_million_pop = round(death / population * 1000000),
+         test_per_million_pop = round(totalTestResults / population * 1000000))
 ```
 
+Currently, the US has `r paste0(round(dat %>% filter(date == max(date)) %>% summarise(total_cases = sum(positive)) %>% pull()/1000),",000")` confirmed cases of Covid-19, making it the country with the most cases. In this part of the report, we break down the US data at the state-level and incorporate the testing data from the CovidTracking Project to better understand the spread of the disease in the US.
 
-## Overview of The Spread of Covid-19 in the US
-
-```{r, echo=FALSE}
-overview = dat %>%
+```{r echo=FALSE}
+# the US trajectory of cases
+  overview = dat %>%
     group_by(date) %>%
     summarise_if(is.numeric, sum, na.rm=TRUE) %>% # aggregate numeriac variables at national level
-    mutate(totalTestResults = total - pending,  # excluding tests with pending results
-           positiveDailyIncrease = positive - lag(positive),
+    mutate(positiveDailyIncrease = positive - lag(positive),
            testResultsDailyIncrease = totalTestResults - lag(totalTestResults),
            positiveDailyIncrease = replace_na(positiveDailyIncrease, 0), # the first day has no lag: set as zero
            testResultsDailyIncrease = replace_na(testResultsDailyIncrease, 0))
-```
-
-```{r, echo=FALSE}
+  
   # time series of positive cases 
   ggplot(data = overview, aes(x = date)) +
     geom_line(aes(y = positive, color = "Positive Cases")) +
@@ -67,6 +227,8 @@ overview = dat %>%
           axis.title.x = element_blank(), axis.title.y = element_blank()) +
     ggtitle("Overview of Covid-19 in the US: Positive Cases")
 ```
+
+The figure above captures the spread of the disease in the US in terms of the total confirmed cases (tested with the positive result) and the daily increaments of the cases. The rapid growth in the number of positive cases reflects the rapid growth in the testing capacity^[Tests with pending results are excluded.] in the US. The ability to test Covid-19 infection is foundamental in containing the virus, as carriers of the virus may be asymptomatic.
 
 ```{r, echo=FALSE}
   # time series of testing
@@ -82,5 +244,160 @@ overview = dat %>%
           axis.title.x = element_blank(), axis.title.y = element_blank()) +
     ggtitle("Overview of Covid-19 in the US: Tests")
 ```
+
+### Spread of Covid-19 at State Level
+
+```{r echo=FALSE}
+# trajectories of states
+df_trajectory = dat %>%
+  group_by(state) %>%
+  mutate(less_than_100 = if_else(positive <= 99, 1, 0),
+         day = row_number(),
+         outbreak = sum(less_than_100) + 1,
+         day = day - outbreak) %>%
+  filter(day >= 0) %>%
+  select(state, day, positive, positive_per_million_pop, test_per_million_pop, totalTestResults)
+
+# current situation
+df_current = dat %>%
+  group_by(state) %>% filter(date == max(date)) %>% arrange(desc(positive))
+
+```
+
+We visualize the trajectory of the spread of Covid-19 for the top 10 states in terms of total number of cases and the number of cases per million population. The latter metric is meanful since it measures the severity of the spread relative to the population. We define an outbreak in a state as the day when the number of cases reaches 100. 
+
+```{r echo=FALSE}
+
+state_list = df_current %>% arrange(desc(positive)) %>% pull(state)   # interested in the top 10 states in terms of number of cases
+state_list = state_list[1:10]
+ymax = ceiling(max(df_trajectory$positive) / 1000) * 1000
+xmax = ceiling(max(df_trajectory$day) / 5) *5
+
+ggplot(data = df_trajectory %>% filter(state %in% state_list), aes(x = day, y = positive)) +
+  geom_line(aes(color = state), size = 0.5) + 
+  scale_y_log10(minor_breaks = c(seq(from = 100, to = 1000, length.out = 6), 
+                                 seq(from = 1000, to = 10000, length.out = 6),
+                                 seq(from = 10000, to = 100000, length.out = 6)),
+                limits = c(100, 100000),
+                labels = scales::comma) +
+  scale_x_continuous(minor_breaks = seq(from = 0, to = xmax, by = 1)) +
+  xlab(paste0("Days since cases reached 100")) + 
+  ylab("Number of cases") + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "bottom") +
+  theme_minimal() + 
+  ggtitle("State Trajectories: Number of Cases") +
+  geom_dl(aes(label = state), method = list(dl.trans(x = x - 0.1), "last.points", cex = 0.8)) +
+  theme(legend.position = "bottom")
+```
+
+We observe from the above figure that WA, NY and CA are the first three states where the outbreak started: The outbreak occurred more than 20 days ago in these state. NY, which is the state with the most cases of Covid-19, has `r df_current$positive` people contracting the virus. Covid-19 has been spreading rapidly in NJ and MI: No other state has seen more cases of Covid-19 than NJ and MI ten days after the outbreak. Notice that we use log-scale for the number of cases in this figure.
+
+```{r echo=FALSE}
+state_list = df_current %>% arrange(desc(positive_per_million_pop)) %>% pull(state)   # interested in the top 10 states in terms of positive_per_million_pop
+state_list = state_list[1:10]
+ymax = ceiling(max(df_trajectory$positive_per_million_pop) / 1000) * 1000
+xmax = ceiling(max(df_trajectory$day) / 5) * 5
+
+ggplot(data = df_trajectory %>% filter(state %in% state_list), aes(x = day, y = positive_per_million_pop)) +
+  geom_line(aes(color = state), size = 0.5) + 
+  scale_x_continuous(minor_breaks = seq(from = 0, to = xmax, by = 1)) +
+  xlab(paste0("Days since cases reached 100")) + 
+  ylab("Number of cases per million population") + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "bottom") +
+  theme_minimal() + 
+  ggtitle("State Trajectories: Number of Cases per Million Population") +
+  geom_dl(aes(label = state), method = list(dl.trans(x = x - 0.1), "last.points", cex = 0.8)) +
+  theme(legend.position = "bottom")
+```
+
+The trajectories of the spread of the disease normalized by population tell a slightly different story, since it measures the severity of the spread relative to the total population. The situation in NY is still the worst, followed by NJ. However, the gap between NY and NJ is much smaller in terms after being normalized by population. CT, VT and DC are among the top 10 states according to this metric, while CA is no longer among the top 10. 
+
+### Testing of Covid-19 at State Level
+
+Testing of Covid-19 is essential since it is the first step to isolating the infected people and containing the virus. We have already seen a rapid growthing in the number of tests implemented in the US, and we break it down at the state level.
+
+```{r echo=FALSE}
+state_list = df_current %>% arrange(desc(totalTestResults)) %>% pull(state)   # interested in the top 10 states in terms of total tests
+state_list = state_list[1:10]
+ymax = ceiling(max(df_trajectory$totalTestResults) / 1000) * 1000
+xmax = ceiling(max(df_trajectory$day) / 5) * 5
+
+ggplot(data = df_trajectory %>% filter(state %in% state_list), aes(x = day, y = totalTestResults)) +
+  geom_line(aes(color = state), size = 0.5) + 
+  scale_x_continuous(minor_breaks = seq(from = 0, to = xmax, by = 1)) +
+  scale_y_continuous(labels = scales::comma) +
+  xlab(paste0("Days since cases reached 100")) + 
+  ylab("Number of tests ") + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "bottom") +
+  theme_minimal() + 
+  ggtitle("State Trajectories: Number of Tests") +
+  geom_dl(aes(label = state), method = list(dl.trans(x = x - 0.1), "last.points", cex = 0.8)) +
+  theme(legend.position = "bottom")
+```
+
+
+```{r echo=FALSE}
+state_list = df_current %>% arrange(desc(test_per_million_pop)) %>% pull(state)   # interested in the top 10 states in terms of test_per_million_pop
+state_list = state_list[1:10]
+ymax = ceiling(max(df_trajectory$test_per_million_pop) / 1000) * 1000
+xmax = ceiling(max(df_trajectory$day) / 5) * 5
+
+ggplot(data = df_trajectory %>% filter(state %in% state_list), aes(x = day, y = test_per_million_pop)) +
+  geom_line(aes(color = state), size = 0.5) + 
+  scale_x_continuous(minor_breaks = seq(from = 0, to = xmax, by = 1)) +
+  scale_y_continuous(labels = scales::comma) +
+  xlab(paste0("Days since cases reached 100")) + 
+  ylab("Number of tests per million population ") + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "bottom") +
+  theme_minimal() + 
+  ggtitle("State Trajectories: Number of Tests per Million Population") +
+  geom_dl(aes(label = state), method = list(dl.trans(x = x - 0.1), "last.points", cex = 0.8)) +
+  theme(legend.position = "bottom")
+```
+
+### Positive Rate
+
+```{r}
+df_test = df_current %>%
+  mutate(pos_rate = positive / totalTestResults) %>%
+  select(state, positive, totalTestResults, pos_rate, test_per_million_pop) %>%
+  filter(positive >= 100)
+
+national_avg = df_current %>% 
+  ungroup() %>%
+  summarise(avg_positive_rate = sum(positive, na.rm = TRUE) / sum(totalTestResults, na.rm = TRUE),
+            avg_test_per_million_pop = round(sum(totalTestResults, na.rm = TRUE) / sum(population, na.rm = TRUE) * 1000000))
+
+slope = as.numeric(national_avg[1])
+l = function(x) log10(slope * x)
+
+title = paste0("COVID19 Testing in US - National Average: \nPositive Rate: ", 
+               round(national_avg[1] * 1000) / 10, 
+               "%; Tests per Million Population: ", 
+               round(national_avg[2]))
+
+state_list = c("NY", "WA", "CA", "NJ", "NC", "DC", "DE", "MI") # these are the states with labels
+
+ggplot(df_test, aes(x = totalTestResults, y = positive, size = test_per_million_pop, color = pos_rate, label = state)) +
+  geom_point(alpha = 0.5) +
+  geom_text(cex = 2.5, color = "black") +
+  geom_label(data = df_test %>% filter(state %in% state_list), 
+             aes(label = paste0(round(pos_rate * 100), "%; ", test_per_million_pop)),
+             cex = 2.5, color = "black", nudge_y = 0.08, alpha = 0.05) +
+  scale_color_gradient(low = "yellow2", high = "red3", name = "Positive Rate") +
+  scale_size(range = c(3, 16), breaks = c(250, 500, 1000, 2000, 4000, 8000), name = "Test Per Million Pop") +
+  stat_function(fun = l, linetype = "dashed", show.legend=FALSE) +
+  scale_y_log10(labels = scales::comma) +
+  scale_x_log10(labels = scales::comma) +
+  xlab("total tests (log scale)") + ylab("total cases (log scale)") +
+  ggtitle(title) +
+  theme_minimal() + theme(legend.position = "right")
+```
+
+This figure is made based on the latest data. The dashed line represents the national average positive rate: about 17 people are infected by the Coronavirus our of every hundred people tested. Each "bubble" in the figure represents a state and is placed according to the number of tests and number of cases of Covid-19 (in log-scale). The color of a "bubble" captures the positive rate of the tests performed by the state and the size of a "bubble" captures the number of tests performed per million population.
+
+
+
+
 
 
