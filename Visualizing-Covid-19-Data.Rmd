@@ -474,12 +474,13 @@ df_test = df_current %>%
   filter(positive >= 100) %>%
   arrange(desc(positive))
 
-ggplot(df_test, aes(x = test_per_million_pop, y = pos_rate, label = state)) +
+ggplot(data = df_test, aes(x = test_per_million_pop, y = pos_rate, label = state)) +
   geom_text(cex = 2.5, color = "black") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
   scale_x_continuous(labels = scales::comma) +
-  xlab("Tests per million population") + ylab("Positive rate") + ggtitle("Cross-State Comparison")
+  xlab("Tests per million population") + ylab("Positive rate") + ggtitle("Cross-State Comparison") +
   theme_minimal() + theme(legend.position = "right")
+  
 ```
 
 ### One Figure with Rich Information
