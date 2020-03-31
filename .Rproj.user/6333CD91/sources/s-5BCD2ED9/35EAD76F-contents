@@ -1,0 +1,166 @@
+
+
+library(jsonlite)
+library(dplyr)
+library(ggplot2)
+library(viridis)
+library(directlabels)
+library(tidyr)
+
+# load data
+remove(list = ls())
+
+dat = as.data.frame(fromJSON("https://covidtracking.com/api/states/daily")) %>%  
+  select(state, date, positive, negative, pending, death, total) %>%
+  mutate(date = as.Date(as.character(date), format = "%Y%m%d"),
+         death = if_else(is.na(death), 0, as.double(death)),
+         pending = if_else(is.na(pending), 0, as.double(pending)),
+         negative = if_else(is.na(negative), 0, as.double(negative))) %>%
+  arrange(state, date) 
+
+setwd("/Users/jiayun/Desktop/covid-19/")
+df_pop = read.csv(file="StatePopulations.csv", head = TRUE, sep =",") %>% 
+  mutate(state_abbrev = as.character(state_abbrev)) %>%
+  select(state = state_abbrev, population = X2018.Population)
+
+# FIGURE 1: Overview - the time series of positive cases and tests
+
+  overview = dat %>%
+    group_by(date) %>%
+    summarise_if(is.numeric, sum, na.rm=TRUE) %>% # aggregate numeriac variables at national level
+    mutate(totalTestResults = total - pending,  # excluding tests with pending results
+           positiveDailyIncrease = positive - lag(positive),
+           testResultsDailyIncrease = totalTestResults - lag(totalTestResults),
+           positiveDailyIncrease = replace_na(positiveDailyIncrease, 0), # the first day has no lag: set as zero
+           testResultsDailyIncrease = replace_na(testResultsDailyIncrease, 0))
+  
+  # time series of positive cases 
+  ggplot(data = overview, aes(x = date)) +
+    geom_line(aes(y = positive, color = "Positive Cases")) +
+    geom_bar(stat = "identity", aes(y = positiveDailyIncrease, fill = "Daily Increase in Positive Cases")) +
+    scale_x_date(date_minor_breaks = "1 day") +
+    scale_y_continuous(labels = scales::comma) +
+    scale_color_manual(values = "darkred") +
+    scale_fill_manual(values = "darkblue") +
+    theme_minimal() +
+    theme(legend.position = "bottom", legend.title = element_blank(), 
+          axis.title.x = element_blank(), axis.title.y = element_blank()) +
+    ggtitle("Overview of Covid-19 in the US: Positive Cases")
+  
+  # time series of testing
+  ggplot(data = overview, aes(x = date)) +
+    geom_line(aes(y = totalTestResults, color = "Total Test Results")) +
+    geom_bar(stat = "identity", aes(y = testResultsDailyIncrease, fill = "Daily Increase in Test Results")) +
+    scale_x_date(date_minor_breaks = "1 day") +
+    scale_y_continuous(labels = scales::comma) +
+    scale_color_manual(values = "darkred") +
+    scale_fill_manual(values = "darkblue") +
+    theme_minimal() +
+    theme(legend.position = "bottom", legend.title = element_blank(), 
+          axis.title.x = element_blank(), axis.title.y = element_blank()) +
+    ggtitle("Overview of Covid-19 in the US: Tests")
+  
+# FIGURE 2: the trajectories of states
+
+# prepare data
+df_current = dat %>%
+  group_by(state) %>%
+  mutate(less_than_100 = if_else(positive <= 99, 1, 0),    # want to find the first day when over 100 patients are confirmed. 
+         day_index = row_number()) %>%   # row_number() assigns an index for each row (within the group)
+  mutate(outbreak_index = sum(less_than_100) + 1) %>%
+  mutate(day_index = day_index - outbreak_index) %>%
+  filter(day_index >= 0) %>%
+  select(state, day_index, positive, total)
+  
+df_current = df_current %>%
+  group_by(state) %>% filter(positive == max(positive)) %>% arrange(desc(positive))  # this dataframe tracks the latest situation
+
+state_list = unlist(df_current[1:15, 1])   # interested in the top 10 states, unlist() converts a dataframe into an array
+ymax = ceiling(max(df_current$positive) / 1000) * 1000
+xmax = ceiling(max(df_current$day_index) / 5) *5
+
+ggplot(data = df %>% filter(state %in% state_list), aes(x = day_index, y = positive)) +  # this is very intuitive...
+  geom_line(aes(color = state), size = 0.5) + 
+  scale_y_log10(minor_breaks = seq(from = 0, to = ymax, by = 1000)) +
+  scale_x_continuous(minor_breaks = seq(from = 0, to = xmax, by = 1)) +
+  xlab(paste0("Days since confirmed cases reached 100")) + 
+  ylab("Cumulative number of confirmed cases") + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "bottom") +
+  theme_minimal() + 
+  # scale_color_viridis(discrete=TRUE, option = "plasma") +
+  geom_dl(aes(label = state), method = list(dl.trans(x = x - 0.1), "last.points", cex = 0.8)) +
+  theme(legend.position = "bottom")
+
+# FUGURE 2: tests done by states (bubble plot)
+
+df_test = dat %>%
+  filter(date == max(date)) %>%
+  select(state, positive, total) %>%
+  mutate(pos_rate = positive / total) %>%
+  mutate(pos_rate_string = round(pos_rate * 100)) %>%
+  filter(positive >= 50)  # only focus on states with over 50 patients
+
+df_test = df_test %>% 
+  left_join(df_pop, by = c("state" = "state")) %>%   # join population data
+  mutate(test_per_million_pop = round(total / population * 1000000))
+
+national_avg = unlist(df_test %>% summarise(avg_positive_rate = sum(positive) / sum(total),
+                      avg_test_per_million_pop = sum(total) / sum(population) * 1000000))
+slope = as.numeric(national_avg[1])
+l = function(x) log10(slope * x)
+
+title = paste0("COVID19 Testing in US - National Average: \nPositive Rate: ", 
+               round(national_avg[1] * 1000) / 10, 
+               "%; Tests per Million Population: ", 
+               round(national_avg[2]))
+
+state_list = c("NY", "WA", "CA", "NJ", "NC", "MA", "OH", "DC", "AZ", "MD", "DE", "MI") # these are the states with labels
+
+ggplot(df_test, aes(x = total, y = positive, size = test_per_million_pop, color = pos_rate, label = state)) +
+  geom_point(alpha = 0.5) +
+  geom_text(cex = 2.75, color = "black") +
+  geom_label(data = df_test %>% filter(state %in% state_list), 
+             aes(label = paste0(pos_rate_string, "%; ", test_per_million_pop)),
+             cex = 2.5, color = "black", nudge_y = 0.08, alpha = 0.05) +
+  scale_color_gradient(low = "yellow2", high = "red3", name = "Positive Rate") +
+  scale_size(range = c(3, 16), breaks = c(250, 500, 1000, 2000, 4000), name = "Test Per Million Pop") +
+  stat_function(fun = l, linetype = "dashed", show.legend=FALSE) +
+  scale_y_log10(breaks = c(100, 500, 1000, 5000, 10000, 50000, 100000)) +
+  scale_x_log10(breaks = c(100, 500, 1000, 5000, 10000, 50000, 100000)) +
+  xlab("total tests (log scale)") + ylab("total confirmed cases (log scale)") +
+  ggtitle(title) +
+  theme_minimal() + theme(legend.position = "right")
+
+# FUGURE 3: positive rate vs test per million population
+
+ggplot(df_test, aes(x = test_per_million_pop, y = pos_rate, color = log10(positive), label = state)) +
+  geom_point(alpha = 0.5, size = 6) +
+  geom_text(cex = 2.5, color = "black") +
+  # scale_size(range = c(3, 16), breaks = c(100, 1000, 10000), name = "Positive") +
+  scale_color_gradient(low = "yellow", high = "red", name = "Number of Positive Cases",
+                       breaks = c(2, 3, 4), label = c(100, 1000, 10000)) +
+  xlab("Tests per Million Population") + ylab("Positive Rate") +
+  theme_minimal() + theme(legend.position = "bottom") +
+  ggtitle("Number of Tests v.s. Positive Rate \n (color indicates number of confirmed cases)")
+
+# FUGURE 4: tests done by states (barplot)
+
+df_bar = df_test %>%
+  mutate(non_positive = total - positive) %>%
+  select(state, positive, non_positive, pos_rate, pos_rate_string, total, test_per_million_pop) %>%
+  gather("outcome", "cases", 2:3) %>%
+  arrange(state)
+
+state_list = df_bar %>% filter(outcome == "positive") %>% arrange(desc(cases)) %>% pull(state)
+state_list = state_list[1:10]
+
+ggplot(data = df_bar %>% filter(state %in% state_list), aes(x = state, y = cases, fill = outcome)) +
+  geom_bar(position = "stack", stat = "identity") +
+  scale_x_discrete (limits = state_list) +
+  scale_color_gradient(low = "yellow2", high = "red3", name = "Positive Rate") +
+  geom_label(data = df_bar %>% filter(state %in% state_list, outcome == "positive"), 
+            aes(y = total + 1500, color = pos_rate, label = paste0(pos_rate_string, "%")),
+            cex = 3, fill = "black") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "right") +
+  xlab("top 10 states in confirmed cases") + ylab("total tests") + ggtitle("COVID-19 Testing by State")

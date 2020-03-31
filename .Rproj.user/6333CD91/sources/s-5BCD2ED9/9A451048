@@ -1,0 +1,33 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1585596806167.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "9A451048",
+    "lastKnownWriteTime" : 140224558588640,
+    "last_content_update" : 1585596806167,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "69FA799B",
+        "caption" : "df_trajectory",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=df_trajectory&cache_key=69FA799B",
+        "displayedObservations" : "461",
+        "environment" : "",
+        "expression" : "df_trajectory",
+        "object" : "df_trajectory",
+        "preview" : "0",
+        "totalObservations" : "461",
+        "variables" : "6"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

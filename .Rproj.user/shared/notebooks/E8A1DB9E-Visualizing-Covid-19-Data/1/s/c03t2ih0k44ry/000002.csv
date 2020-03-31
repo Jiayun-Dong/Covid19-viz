@@ -1,2 +1,0 @@
-"0","# read JHU data"
-"0","df_raw = as.data.frame(read.csv(file=""time_series_covid19_confirmed_global.csv"", head = TRUE, sep ="",""))"
