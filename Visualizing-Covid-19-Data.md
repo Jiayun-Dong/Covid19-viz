@@ -94,7 +94,7 @@ South Korea has controlled the spread with very limited daily growth in
 the number of confirmed cases roughly a month after their outbreaks (day
 30). The disease is growing at a somewhat controlable rate after the
 outbreak in some of the other Asian countries and regions, including
-Japan, Singapre Hong Kong and Taiwan. The spread in rest of the
+Japan, Singapore, Hong Kong and Taiwan. The spread in rest of the
 countries in the figure is concerning: the numbers of people infected
 are growing rapidly at a “close-to-exponential”
 rate.
@@ -111,7 +111,7 @@ another country, this argument is unfortunately inaccurate.
 
 ### Spread of Covid-19 in the US
 
-Now we move onto US data. Currently, there are about NA,000 confirmed
+Now we move onto US data. Currently, there are about 161,000 confirmed
 cases of Covid-19 in the US.
 
 The figure below show the dynamics of the spread in the US. The
@@ -125,7 +125,7 @@ been implemented recently across the nation. While it might still be too
 early to carefully analyze their effectiveness, we estimated the average
 growth rate in the timeframe between 3 and 7 days from today and use the
 estimated rate to “project” the number of cases for the recent 3 days. A
-lower actual number of cases then the projected number **might**
+lower actual number of cases than the projected number **might**
 indicate a slower growth rate in the most recent days. One can see from
 the figure that the “projected” trajectory (grey dashed curve) indeed
 lies above the actual
@@ -181,14 +181,10 @@ We visualize the trajectory of the spread of Covid-19 for the top 10
 states in terms of total number of cases in the figure below. Observe
 from the figure that WA, NY and CA are the first three states where the
 outbreak started: The outbreak occurred more than 20 days ago in these
-state. NY, which is the state with the most cases of Covid-19, has
-66497, 16636, 6498, 6447, 5752, 5473, 5057, 4896, 4087, 4025, 2877,
-2809, 2627, 2571, 1933, 1834, 1786, 1413, 1307, 1221, 1157, 1031, 1020,
-1008, 925, 859, 847, 806, 606, 576, 481, 473, 439, 424, 408, 401, 368,
-314, 310, 275, 264, 256, 237, 175, 174, 171, 145, 126, 114, 109, 101,
-94, 58, 30, 2, NA people contracting the virus. Covid-19 has been
-spreading rapidly in NJ and MI: No other state has seen more cases of
-Covid-19 than NJ and MI ten days after the
+state. NY, which is the state with the most cases of Covid-19, has 66497
+people contracting the virus. Covid-19 has been spreading rapidly in NJ
+and MI: No other state has seen more cases of Covid-19 than NJ and MI
+ten days after the
 outbreak.
 
 ![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
@@ -208,7 +204,7 @@ that we have argued that the positive rate of Covid-19 tests measures
 the testing capacity relative to the severity of the spread.
 
 The situation in NY is qualitively similar to the overall situation in
-the US. This is natural since roughly41% of the positive cases are
+the US. This is natural since roughly 41% of the positive cases are
 contributed by NY. In US, the growth rate seems to become slower in
 recent days. Again, this cannot be attributed to the effectiveness of
 social distancing policies: It could be alternatively casued by the
