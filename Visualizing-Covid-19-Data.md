@@ -304,8 +304,8 @@ figure.
     separatedly in our report.
 
 2.  We set the outbreak of Hubei Provence as Jan 19. While data is not
-    available from JHU before Jan 22, we have checked from other data
-    source that the number of confirmed cases has reached 100 for Hubei
-    on that day.
+    available from JHU before Jan 22, we have checked from [other data
+    source](https://shimo.im/sheets/tyWrrrqppYVwQtCW/gVSL1) that the
+    number of confirmed cases has reached 100 for Hubei on that day.
 
 3.  Tests with pending results are excluded.

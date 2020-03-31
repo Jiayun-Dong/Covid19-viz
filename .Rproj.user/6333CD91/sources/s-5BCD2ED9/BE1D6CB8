@@ -7,14 +7,14 @@
     "folds" : "",
     "hash" : "0",
     "id" : "BE1D6CB8",
-    "lastKnownWriteTime" : 1585632489,
-    "last_content_update" : 1585632489746,
+    "lastKnownWriteTime" : 1585632799,
+    "last_content_update" : 1585632799839,
     "path" : "~/Documents/GitHub/Covid19-viz/Visualizing-Covid-19-Data.Rmd",
     "project_path" : "Visualizing-Covid-19-Data.Rmd",
     "properties" : {
-        "cursorPosition" : "7,16",
+        "cursorPosition" : "202,55",
         "last_setup_crc32" : "5BCD2ED97cc47cb9",
-        "scrollLine" : "0",
+        "scrollLine" : "187",
         "tempName" : "Untitled1"
     },
     "read_only" : false,
