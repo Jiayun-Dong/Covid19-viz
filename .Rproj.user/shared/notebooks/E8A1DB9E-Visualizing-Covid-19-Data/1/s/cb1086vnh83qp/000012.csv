@@ -1,0 +1,6 @@
+"0","# top 10"
+"0","dat_top = dat_international %>% "
+"0","  filter(date == max(date)) %>%  # get the most recent data"
+"0","  arrange(desc(cases)) %>% "
+"0","  select(-date)"
+"0","head(dat_top, 10)"

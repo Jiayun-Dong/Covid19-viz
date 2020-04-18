@@ -1,6 +1,0 @@
-"0",""
-"0","# number of countries reaching 1000"
-"0","    ggplot(dat_international_1000, aes(x = date, y = number_of_countries)) +"
-"0","      geom_line() +"
-"0","      ggtitle(""Number of Countries/Regions with Over 1000 Infections"") + "
-"0","      theme_minimal() + theme(axis.title.x = element_blank(), axis.title.y = element_blank())"
