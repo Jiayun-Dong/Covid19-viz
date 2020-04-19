@@ -6,6 +6,6 @@ This is the demo of my recent data analysis work about visualizing Covid-19 data
 * `[0330] Visualizing-Covid-19-Data.pdf` is an earlier version.
 * `Visualizing-Covid-19-Data.Rmd` contains the code to generate the analysis.
 
-I also summarize the key take-away below (coming soon!). Please let me know your comments and suggestions.
+I also summarize the key take-away below (Coming soon! Please refer to the full version for now.). Please let me know your comments and suggestions.
 
 
