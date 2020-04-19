@@ -5,14 +5,14 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "0",
+    "hash" : "2938127940",
     "id" : "28CB4EF0",
-    "lastKnownWriteTime" : 1587265164,
-    "last_content_update" : 1587265164442,
+    "lastKnownWriteTime" : 1587265529,
+    "last_content_update" : 1587265529023,
     "path" : "~/Documents/GitHub/Covid19-viz/Visualizing-Covid-19-Data.Rmd",
     "project_path" : "Visualizing-Covid-19-Data.Rmd",
     "properties" : {
-        "cursorPosition" : "5,16",
+        "cursorPosition" : "4,8",
         "last_setup_crc32" : "DE74B2BA91e92d8b",
         "scrollLine" : "0",
         "tempName" : "Untitled1"

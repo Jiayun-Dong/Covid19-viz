@@ -27,7 +27,7 @@
 "0","                       sec.axis = sec_axis(~. / ymax, name = ""Positive Rate"", "
 "0","                                           breaks = seq(0,1,length.out = 6),"
 "0","                                           labels = c(""0%"", ""20%"", ""40%"", ""60%"", ""80%"", ""100%""))) +"
-"0","    scale_x_continuous(breaks = seq(0, xmax, 5), labels = (df_trajectoy_state$date)[1 + seq(0, xmax, 5)]) +"
+"0","    scale_x_continuous(breaks = seq(0, xmax, 7), labels = (df_trajectoy_state$date)[1 + seq(0, xmax, 7)]) +"
 "0","    scale_color_manual(values = c(""grey"", ""darkred"", ""red"")) +"
 "0","    scale_fill_manual(values = c(""darkblue"")) +"
 "0","    xlab(""Days since cases reached 100"") + ylab(""Number of Positive Cases"") +"
