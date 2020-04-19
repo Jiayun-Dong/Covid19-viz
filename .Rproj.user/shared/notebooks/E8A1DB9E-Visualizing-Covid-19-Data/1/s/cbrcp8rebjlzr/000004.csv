@@ -1,0 +1,6 @@
+"0","# number of countries reaching 1000"
+"0","    dat_international_1000 = dat_international %>% "
+"0","      spread(date, cases) %>%"
+"0","      mutate_if(is.numeric, function(x) as.numeric(x >= 1000))"
+"0","    dat_international_1000 = data.frame(""date"" = as.Date(colnames(dat_international_1000)[-1]), "
+"0","                              ""number_of_countries"" = colSums(dat_international_1000[,-1]))"

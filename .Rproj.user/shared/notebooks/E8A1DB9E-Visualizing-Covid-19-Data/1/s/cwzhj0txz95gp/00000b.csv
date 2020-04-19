@@ -24,7 +24,7 @@
 "0","    geom_bar(stat = ""identity"", aes(y = deathDailyIncrease, fill = ""Daily Increase in Deaths"")) +"
 "0","    geom_line(data = projection, aes(x = x, y = y, color = ""Constant Growth""), linetype = ""dashed"") +"
 "0","    scale_y_continuous(labels = scales::comma) +"
-"0","    scale_x_continuous(breaks = seq(0, xmax, 5), labels = (df_trajectoy_state$date)[1 + seq(0, xmax, 5)]) +"
+"0","    scale_x_continuous(breaks = seq(0, xmax, 7), labels = (df_trajectoy_state$date)[1 + seq(0, xmax, 7)]) +"
 "0","    scale_color_manual(values = c(""grey"",""darkred"")) +"
 "0","    scale_fill_manual(values = c(""darkblue"")) +"
 "0","    xlab(""Date"") + "

@@ -6,27 +6,33 @@
     infected. Over 700,000 people are infected by Covid-19 in the US.
     Disease containment efforts are relatively more effective in some
     Asian countries and regions.
-  - The growth in confirmed cases has become slower recently, which is
-    more likely to be a sign of inadequate tests. The metric, positive
-    rate of Covid-19 tests, can be used to measure whether sufficient
-    tests has been performed relative to the spread of the disease. It
-    grows from 15% to 20% in the past month.
-  - Dispite the variation in testing capacities and policies, we argue
-    that rough comparisons could be made among states with similar
-    numbers of tests per million population, by comparing their positive
-    rates.
+  - In ths US, the growth in confirmed cases has become slower recently.
+    However, there is also a signal of inadequate testing. The metric,
+    positive rate of Covid-19 tests, can be used to measure the
+    sufficiency of tests relative to the spread of the disease. It grows
+    from 15% to 20% in the past month.
+  - Cross-state comparisons are possible despite the variation in
+    testing policies. It can be done by jointly analyzing positive rate
+    and number of tests per million population – For two states with
+    similar numbers of tests per million population, positive rate is a
+    proxy for the severity of the spread of Covid-19.
+  - The number of deaths is a more reliable metric than the number of
+    positive cases. The situation in some states (such as NY) starts to
+    stablize according to this metric. A projection of the trajectory of
+    Covid-19 is done based on a simplified version of
+    [IHME’s](https://covid19.healthdata.org/united-states-of-america)
+    method. Similar results are reproduced.
 
 ## Introduction
 
 The goal of this report is to visualize the spread of Covid-19 and to
 understand the development of this public health crisis. We begin by a
 brief overview of the spread of Covid-19 across the globe and in the US.
-We then move onto the closer scrutiny at the US data at state-level. In
+We then move onto the closer analysis of the US data at state-level. In
 particular we visualize the trajectory of the spread across time for
-individual states as well as make some attempts to compare the state of
-the spread across states. \[1\]
+individual states as well as compare the states and making projections.
 
-In this report, we use the data from [Johns Hopkins
+In this report, we use the [Johns Hopkins
 dataset](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series)
 (also uploaded in the current repository) for the global overview and
 the data from [The COVID Tracking Project](https://covidtracking.com)
@@ -39,41 +45,17 @@ This report is written with the data as of April 18th, 2020.
 
 ## Overview of the Spread of Covid-19
 
-    ## Warning: funs() is soft deprecated as of dplyr 0.8.0
-    ## Please use a list of either functions or lambdas: 
-    ## 
-    ##   # Simple named list: 
-    ##   list(mean = mean, median = median)
-    ## 
-    ##   # Auto named with `tibble::lst()`: 
-    ##   tibble::lst(mean, median)
-    ## 
-    ##   # Using lambdas
-    ##   list(~ mean(., trim = .2), ~ median(., na.rm = TRUE))
-    ## This warning is displayed once per session.
-
 ### Covid-19 is a Global Pandemic
 
 Covid-19 began spreading in China around the end of 2019 and continued
-to spread globally with around 2240,000 people infected with the
-disease. The figure
-belows
+to spread globally with around 2240,000 people infected by the disease.
+The figure belows show the overall
+trend.
 
 ![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
-    ## `mutate_if()` ignored the following grouping variables:
-    ## Column `Country.Region`
-
-The disease has been spreading in 185 countries and regions. Currently,
-there are 78 countries and regions with over 1,000 confirmed cases. The
-figure below shows that Covid-19 has become a global public health
-crisis in March, when most countries reached the 1000-case
-threshold.
-
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
-
-Among these countries and regions, the following are the hardest-hit
-places. \[2\]
+Globally, the following countries and regions are the hardest-hit
+places. \[1\]
 
     ## # A tibble: 10 x 2
     ## # Groups:   Country.Region [10]
@@ -90,11 +72,11 @@ places. \[2\]
     ##  9 Hubei           68128
     ## 10 Belgium         36138
 
-The following figure visualizes the trajectory of the spread of Covid-19
-in some of the countries and regions. In particular, for each country or
-region, we define the date when the number of confirmed cases of
-Covid-19 reached 100 as the date of the “outbreak” and plot how the
-cumulative number of confirmed cases evolves after the outbreak.\[3\]
+The following figure shows the trajectory of the spread of Covid-19 in
+some selected countries and regions. In particular, for each place, we
+define the date when the number of confirmed cases of Covid-19 reached
+100 as the date of the “outbreak” and plot how the cumulative number of
+confirmed cases evolves after the outbreak.\[2\]
 
 It seems that many Asian places including China, South Korea, Hong Kong
 and Taiwan has controled the situation roughly 30 to 40 days after the
@@ -103,9 +85,9 @@ controlable rate. The spread in rest of the countries in the figure is
 very concerning, despite that the growth starts to slow
 down.
 
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
-We emphasize again that the number of confirmed cases in each country is
+We emphasize that the number of confirmed cases in each country is
 affected by its testing policy and capacity, which are not uniform
 across the world. Moreover, countries with similar total number of
 confirmed cases may differ in the severity of the spread of Covid-19,
@@ -116,7 +98,7 @@ unfortunately inaccurate without a deeper dive into the data.
 
 ### Spread of Covid-19 in the US
 
-Now we move onto the US data. Currently, there are about 721,000
+Now we move onto the US data. Currently, there are about 722,000
 confirmed cases of Covid-19 in the US.
 
 The figure below shows the dynamics of the spread in the US. The
@@ -125,25 +107,23 @@ growing at the exponential rate (red curve). On the other hand, growth
 began to stablize in April. While a daily increment of about 25,000
 cases is still concerning (blue bars), it does not continue to increase.
 
-As we have pointed out before, the question remains whether the stable
-growth reflects the fact that the virus has been controled or that
-insufficient tests has been performed. Again, no one can be infected
-without being
-tested.
+The question remains whether the stable growth reflects the fact that
+the virus has been controled or that insufficient tests has been
+performed. (Again, no one is confirmed to be infected without being
+tested.)
 
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 The figure below shows the cumulative number of Covid-19 tests performed
 in the US from the outbreak (dard red curve), together with its daily
-increments (blue bars).\[4\] The ability to test Covid-19 infection is
-foundamental in containing the virus, as carriers of the virus may be
-asymptomatic. One can roughly see that the number of tests grows at the
-exponential rate from mid-March, followed by the linear rate in the few
-week. Therefore, claiming that we have controled the spread of the virus
-from the slower growth rate in the last figure may not be
+increments (blue bars).\[3\] One can roughly see that the number of
+tests grows at the exponential rate from mid-March, followed by the
+linear rate in the few week. Therefore, claiming that we have controled
+the spread of the virus from the slower growth rate in the last figure
+is not immediately
 warranted.
 
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 One metric, while it is not a perfect one, to measure if there are
 enough tests performed relative to the severity of the spread of disease
@@ -169,7 +149,7 @@ again that we cannot directly claim that we have better control of the
 disease. At least, there is not enough evidence to make this
 statement.
 
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 While postitive rate of Covid-19 tests is one way of telling whether the
 slowdown in growth rate indicates the spread has been effectively
@@ -191,7 +171,7 @@ death rate of Covid-19. The observed rising death rate may suggest again
 that may people infected by the virus are not
 tested.
 
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ## US State-Level Analysis
 
@@ -202,7 +182,7 @@ contracting the virus. Its neighboring state, NJ, has a similar
 trajectory. The trajectories of the rest of the states are
 similar.
 
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 Recall that we have argued above that the number of positive cases can
 be influenced by the testing policies and capacity, which vary across
@@ -239,7 +219,7 @@ tend to believe that the spread of Covid-19 becomes truely slower in the
 past
 week.
 
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 #### New Jersey
 
@@ -250,7 +230,7 @@ constant growth, we don’t have enough evidence to claim that the virus
 is being
 controled.
 
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 #### Massachusett
 
@@ -259,11 +239,7 @@ testing capacity is not sufficient. While the red curve lies below the
 grey curve, we don’t have enough evidence to argue that the spread is
 slower.
 
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
-
-#### California
-
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 <!-- ### Testing of Covid-19 at State Level -->
 
@@ -335,7 +311,7 @@ slower.
 
 <!-- ``` -->
 
-### Cross-State Comparison
+#### Cross-State Comparison
 
 Since different states have different sizes of population. One metric to
 measure the sufficieny of tests is the number of tests per million
@@ -359,12 +335,14 @@ with the relative severities of the spreads among the people with high
 risk, which is again closely related to the relative severities of the
 spreads in the states.
 
-Based on this logic and the figure below, we can argue, for example,
-that the spread is more severe in NY than LA, that it is more severe in
-NJ than DC, and that it is more severe in MI than
+Based on this logic, we plot the figure below. Each state is places in
+the figure according to its per million population tests and positive
+rate. The top 10 states with the most cases are in red. The figure
+reveals, for example, that the spread is more severe in NY than LA, that
+it is more severe in NJ than DC, and that it is more severe in MI than
 IL.
 
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ### Part 2: Number of Deaths
 
@@ -373,12 +351,12 @@ displays the trajectories of deaths of top 10 states after the outbreak.
 The trajectories of NY and NJ are very different from the rest. If one
 believes that the health systems of NY and NJ are not overwhelmed by the
 number of patients, this graph seems to suggests that the “real”
-outbreaks for NY and NJ are about 10 days earlier than the ones defined
-here – shifting the curves for NY and NJ to the right by 10 days, their
-trajectories are comparable with other
+outbreaks for NY and NJ are about 10 to 15 days earlier than the ones
+defined here – shifting the curves for NY and NJ to the right by 10 to
+15 days, their trajectories are comparable with other
 states.
 
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 We plot the trajectory of deaths for NY in the same way as we did for
 positive cases. Since deaths is a more reliable measure of the spread of
@@ -387,23 +365,40 @@ virus starts to become under control in NY recently, since the red curve
 of deaths lies below the grey curve of the estimates assuming constant
 growth.
 
-![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
-1.  We have to emphasize, however, the use of the figures as the basis
-    for predictions is discouraged. Comparisons among countries and
-    states should also be made cautiously. This is because testing
-    policies various drastically across countries and states. The number
-    of cases at the face value could be misleading – After all, no one
-    can be confirmed as infected if no test is performed. Moreover, no
-    epidemiological structure has been modeled in this report. As such,
-    it not ideal to extrapolate the patterns in the figures too much.
+The figure below is the trajectory of deaths in FL. The growth does not
+seem to have become slower
+recently.
 
-2.  Notice that we treat Hubei Province and the rest of China
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+
+#### Projection of Deaths Curve
+
+IHME predicts the development of Covid-19 based on deaths data. There
+key assumption is that the daily incremental deaths arranged by time
+have a bell shape. They rely on social distancing data together with
+deaths data to predict. Here we make predictions in a simplified way,
+since we do not have social distancing data – we directly fit the curve
+by approximate the cumulative deaths trajectory using shifted and scaled
+CDF function of normal distribution. It turns out that we replicate
+IHME’s results quite closely. One can compare our predicted peak and
+total deaths with the ones projected by IHME. They are relatively close
+to each other. We demonstrate some examples
+below.
+
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+
+![](Visualizing-Covid-19-Data_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+
+1.  Notice that we treat Hubei Province and the rest of China
     separatedly in our report.
 
-3.  We set the outbreak of Hubei Provence as Jan 19. While data is not
+2.  We set the outbreak of Hubei Provence as Jan 19. While data is not
     available from JHU before Jan 22, we have checked from [other data
     source](https://shimo.im/sheets/tyWrrrqppYVwQtCW/gVSL1) that the
     number of confirmed cases has reached 100 for Hubei on that day.
 
-4.  Tests with pending results are excluded.
+3.  Tests with pending results are excluded.
